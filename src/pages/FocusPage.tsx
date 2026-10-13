@@ -16,7 +16,7 @@ import {
   Sliders,
 } from 'lucide-react';
 import { useTimer } from '@/context/TimerContext';
-import { useSound } from '@/context/SoundContext';
+import { useSound, getYouTubeEmbedSrc } from '@/context/SoundContext';
 import { dataService } from '@/services/data-service';
 import { ProgressRing } from '@/components/ui/ProgressBar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -341,29 +341,30 @@ export const FocusPage: React.FC = () => {
               )}
 
               {currentPlaylist && (
-                <div className="space-y-1.5">
-                  <div className="relative rounded overflow-hidden bg-black aspect-video border border-border shadow-xs">
+                <div className="space-y-2">
+                  <div className="relative rounded-lg overflow-hidden bg-black aspect-video border border-border shadow-xs">
                     <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${currentPlaylist.video_or_playlist_id}?enablejsapi=1`}
+                      src={getYouTubeEmbedSrc(currentPlaylist)}
                       title={currentPlaylist.name}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                       className="w-full h-full border-0"
                     />
                   </div>
-                  <div className="flex items-center justify-between text-xs pt-1">
+                  <div className="flex items-center justify-between text-xs pt-1 px-0.5">
                     <div className="truncate pr-2">
-                      <span className="text-foreground font-medium truncate block text-xs">{currentPlaylist.name}</span>
+                      <span className="text-foreground font-semibold truncate block text-xs">{currentPlaylist.name}</span>
                       <span className="text-muted-foreground text-[10px] capitalize font-mono">{currentPlaylist.mood} stream</span>
                     </div>
                     <a
                       href={currentPlaylist.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-elevated shrink-0 transition-colors"
-                      title="Open on YouTube"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline px-2 py-1 rounded bg-elevated border border-border shrink-0 transition-colors"
+                      title="Open full stream on YouTube"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open on YouTube</span>
+                      <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                 </div>

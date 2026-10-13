@@ -40,25 +40,46 @@ const defaultSounds: AmbientSoundState[] = [
 const SoundContext = createContext<SoundContextType | undefined>(undefined);
 
 export function parseYouTubeVideoOrPlaylistId(url: string): { id: string; type: 'video' | 'playlist' } | null {
+  const trimmed = url.trim();
+  // Support raw 11-char video IDs directly
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return { id: trimmed, type: 'video' };
+  }
   try {
-    const parsed = new URL(url);
+    const rawUrl = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`;
+    const parsed = new URL(rawUrl);
     if (parsed.searchParams.has('list')) {
       return { id: parsed.searchParams.get('list')!, type: 'playlist' };
     }
     if (parsed.searchParams.has('v')) {
       return { id: parsed.searchParams.get('v')!, type: 'video' };
     }
-    if (parsed.hostname === 'youtu.be') {
-      return { id: parsed.pathname.slice(1), type: 'video' };
+    if (parsed.hostname.includes('youtu.be')) {
+      const vid = parsed.pathname.slice(1).split('?')[0];
+      if (vid) return { id: vid, type: 'video' };
+    }
+    if (parsed.pathname.includes('/live/')) {
+      const parts = parsed.pathname.split('/live/');
+      const vid = parts[1]?.split('?')[0];
+      if (vid) return { id: vid, type: 'video' };
     }
     if (parsed.pathname.includes('/embed/')) {
       const parts = parsed.pathname.split('/embed/');
-      return { id: parts[1], type: 'video' };
+      const vid = parts[1]?.split('?')[0];
+      if (vid) return { id: vid, type: 'video' };
     }
   } catch {
     // not valid URL
   }
   return null;
+}
+
+export function getYouTubeEmbedSrc(playlist: SavedPlaylist): string {
+  const cleanId = encodeURIComponent(playlist.video_or_playlist_id);
+  if (playlist.type === 'playlist') {
+    return `https://www.youtube.com/embed/videoseries?list=${cleanId}&rel=0`;
+  }
+  return `https://www.youtube.com/embed/${cleanId}?rel=0`;
 }
 
 export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

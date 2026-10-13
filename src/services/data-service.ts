@@ -69,6 +69,30 @@ function loadInitialState(): AppState {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed.categories && parsed.topics) {
+        // Upgrade any outdated/dead YouTube IDs from previous runs
+        if (Array.isArray(parsed.playlists)) {
+          parsed.playlists = parsed.playlists.map((pl: SavedPlaylist) => {
+            if (pl.video_or_playlist_id === 'jfKfPfyJRdk' || !pl.video_or_playlist_id) {
+              return {
+                ...pl,
+                url: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
+                video_or_playlist_id: '5qap5aO4i9A',
+                name: 'Lofi Girl — Beats to relax/study to',
+              };
+            }
+            if (pl.video_or_playlist_id === 'WPni755-Krg') {
+              return {
+                ...pl,
+                url: 'https://www.youtube.com/watch?v=fLoWzp8gRK4',
+                video_or_playlist_id: 'fLoWzp8gRK4',
+                name: 'Classical Piano Focus (3 Hours)',
+              };
+            }
+            return pl;
+          });
+        } else {
+          parsed.playlists = initialSavedPlaylists;
+        }
         return parsed;
       }
     }

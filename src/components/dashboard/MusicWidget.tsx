@@ -6,7 +6,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { useSound } from '@/context/SoundContext';
+import { useSound, getYouTubeEmbedSrc } from '@/context/SoundContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -109,26 +109,27 @@ export const MusicWidget: React.FC = () => {
           <div className="space-y-1.5">
             <div className="relative rounded-md overflow-hidden bg-black aspect-video border border-border shadow-xs">
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${currentPlaylist.video_or_playlist_id}?enablejsapi=1`}
+                src={getYouTubeEmbedSrc(currentPlaylist)}
                 title={currentPlaylist.name}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 className="w-full h-full border-0"
               />
             </div>
-            <div className="flex items-center justify-between text-xs pt-1">
+            <div className="flex items-center justify-between text-xs pt-1 px-0.5">
               <div className="truncate pr-2">
-                <span className="text-foreground font-medium truncate block text-xs">{currentPlaylist.name}</span>
-                <span className="text-muted-foreground text-[10px] capitalize">{currentPlaylist.mood} stream</span>
+                <span className="text-foreground font-semibold truncate block text-xs">{currentPlaylist.name}</span>
+                <span className="text-muted-foreground text-[10px] capitalize font-mono">{currentPlaylist.mood} stream</span>
               </div>
               <a
                 href={currentPlaylist.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-elevated shrink-0 transition-colors"
-                title="Open stream in YouTube"
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline px-2 py-0.5 rounded bg-elevated border border-border shrink-0 transition-colors"
+                title="Open stream on YouTube"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Open</span>
+                <ExternalLink className="w-3 h-3" />
               </a>
             </div>
           </div>
