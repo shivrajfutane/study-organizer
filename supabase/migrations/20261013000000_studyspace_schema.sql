@@ -269,7 +269,7 @@ CREATE TABLE IF NOT EXISTS public.study_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     category_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
-    subject_id REFERENCES public.subjects(id) ON DELETE SET NULL,
+    subject_id UUID REFERENCES public.subjects(id) ON DELETE SET NULL,
     topic_id UUID REFERENCES public.topics(id) ON DELETE SET NULL,
     task_id UUID REFERENCES public.tasks(id) ON DELETE SET NULL,
     project_id UUID REFERENCES public.projects(id) ON DELETE SET NULL,
