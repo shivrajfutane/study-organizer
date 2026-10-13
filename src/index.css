@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  --color-main: #0B0D10;
+  --color-sidebar: #0F1217;
+  --color-card: #141820;
+  --color-elevated: #1A2029;
+  --color-primary: #D6FF62;
+  --color-accent: #63D6C5;
+  --color-border: #272E38;
+  --color-text-primary: #F3F5F7;
+  --color-text-secondary: #929BA8;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-success: #10B981;
+}
+
+@layer base {
+  :root {
+    --background: #0B0D10;
+    --foreground: #F3F5F7;
+    --sidebar: #0F1217;
+    --card: #141820;
+    --card-foreground: #F3F5F7;
+    --popover: #1A2029;
+    --popover-foreground: #F3F5F7;
+    --primary: #D6FF62;
+    --primary-foreground: #0B0D10;
+    --secondary: #1A2029;
+    --secondary-foreground: #F3F5F7;
+    --muted: #1A2029;
+    --muted-foreground: #929BA8;
+    --accent: #63D6C5;
+    --accent-foreground: #0B0D10;
+    --destructive: #EF4444;
+    --destructive-foreground: #F3F5F7;
+    --border: #272E38;
+    --input: #272E38;
+    --ring: #D6FF62;
+    --radius: 0.5rem;
+  }
+
+  .light {
+    --background: #F8FAFC;
+    --foreground: #0F172A;
+    --sidebar: #F1F5F9;
+    --card: #FFFFFF;
+    --card-foreground: #0F172A;
+    --popover: #FFFFFF;
+    --popover-foreground: #0F172A;
+    --primary: #527A00;
+    --primary-foreground: #FFFFFF;
+    --secondary: #E2E8F0;
+    --secondary-foreground: #0F172A;
+    --muted: #F1F5F9;
+    --muted-foreground: #64748B;
+    --accent: #0D9488;
+    --accent-foreground: #FFFFFF;
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    --border: #E2E8F0;
+    --input: #E2E8F0;
+    --ring: #527A00;
+  }
+}
+
+* {
+  border-color: #272E38;
+  box-sizing: border-box;
+}
+
+.light * {
+  border-color: #E2E8F0;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #0B0D10;
+  color: #F3F5F7;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.light body {
+  background-color: #F8FAFC;
+  color: #0F172A;
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #272E38;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #929BA8;
+}

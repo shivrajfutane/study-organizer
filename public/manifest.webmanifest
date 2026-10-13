@@ -1,0 +1,17 @@
+{
+  "name": "StudySpace - Personal Study Manager",
+  "short_name": "StudySpace",
+  "description": "Personal Study Manager, Learning Dashboard, and Focus Workspace",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0d12",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
