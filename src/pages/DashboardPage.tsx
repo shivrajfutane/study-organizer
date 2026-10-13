@@ -19,6 +19,7 @@ import { ResourcePreviewWidget } from '@/components/dashboard/ResourcePreviewWid
 import { ActivityAndChartsWidget } from '@/components/dashboard/ActivityAndChartsWidget';
 import { QuickAddModal } from '@/components/layout/QuickAddModal';
 import { Button } from '@/components/ui/button';
+import { StudySpaceLogo } from '@/components/ui/StudySpaceLogo';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,15 +62,19 @@ export const DashboardPage: React.FC = () => {
       {/* Welcome Banner & Command Actions */}
       <div className="rounded-lg bg-card border border-border p-5 sm:p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground uppercase tracking-wider">
-              <Calendar className="w-3.5 h-3.5 text-primary" />
-              <span>{todayDateFormatted}</span>
+          <div className="flex items-start gap-3.5">
+            <div className="hidden sm:block shrink-0 mt-1">
+              <StudySpaceLogo size={42} showText={false} />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight m-0">
-              {getGreeting()}, {profile.full_name || 'Student'}
-            </h1>
-            <p className="text-xs text-muted-foreground max-w-xl leading-relaxed m-0">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground uppercase tracking-wider">
+                <Calendar className="w-3.5 h-3.5 text-primary" />
+                <span>{todayDateFormatted}</span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight m-0">
+                {getGreeting()}, {profile.full_name || 'Student'}
+              </h1>
+              <p className="text-xs text-muted-foreground max-w-xl leading-relaxed m-0">
               {stats.focusMinutesToday === 0 ? (
                 <>0 tracked hours today. Start a focus session to build your study habit.</>
               ) : (
@@ -79,8 +84,9 @@ export const DashboardPage: React.FC = () => {
               )}
             </p>
           </div>
+        </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
             <Button
               onClick={() => setQuickAddModal({ isOpen: true, defaultTab: 'task' })}
               variant="outline"

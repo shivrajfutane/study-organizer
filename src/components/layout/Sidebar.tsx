@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTimer } from '@/context/TimerContext';
+import { StudySpaceLogo } from '@/components/ui/StudySpaceLogo';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -59,21 +60,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
       )}
     >
       {/* Brand Header */}
-      <div className="flex items-center justify-between px-3.5 h-14 border-b border-border">
-        <NavLink to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
-            <span className="font-mono font-bold text-sm text-primary tracking-tighter">S*</span>
-          </div>
-          {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm tracking-tight text-foreground">
-                StudySpace
-              </span>
-              <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-elevated text-primary border border-border font-medium">
-                v2
-              </span>
-            </div>
-          )}
+      <div className="flex items-center justify-between px-3 h-14 border-b border-border">
+        <NavLink to="/" className="flex items-center gap-2 group">
+          <StudySpaceLogo size={32} showText={!isCollapsed} badge="v2" />
         </NavLink>
 
         <button

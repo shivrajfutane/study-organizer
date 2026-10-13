@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Lock, Mail, User, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, User, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { StudySpaceLogo } from '@/components/ui/StudySpaceLogo';
 
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
@@ -45,16 +46,16 @@ export const AuthPage: React.FC = () => {
     <div className="min-h-screen bg-[#0B0D10] flex flex-col justify-center items-center p-4 selection:bg-[#D6FF62]/30">
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-[#141820] border border-[#272E38] p-0.5 shadow-xl mx-auto flex items-center justify-center">
-            <div className="w-full h-full bg-[#0B0D10] rounded-[14px] flex items-center justify-center">
-              <Sparkles className="w-7 h-7 text-[#D6FF62]" />
-            </div>
+        <div className="text-center space-y-3 flex flex-col items-center">
+          <StudySpaceLogo size="xl" showText={false} />
+          <div>
+            <h1 className="text-3xl font-extrabold text-[#F3F5F7] tracking-tight">
+              Study<span className="text-[#D6FF62]">Space</span>
+            </h1>
+            <p className="text-xs font-mono uppercase tracking-widest text-[#63D6C5] mt-1">
+              Personal Study Manager & Focus Workspace
+            </p>
           </div>
-          <h1 className="text-3xl font-extrabold text-[#F3F5F7] tracking-tight">StudySpace</h1>
-          <p className="text-sm text-zinc-400">
-            Personal Study Manager, Learning Dashboard & Focus Sanctuary
-          </p>
         </div>
 
         {/* Card Form */}

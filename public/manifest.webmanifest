@@ -1,17 +1,23 @@
 {
-  "name": "StudySpace - Personal Study Manager",
+  "name": "StudySpace - Personal Study Manager & Focus Workspace",
   "short_name": "StudySpace",
-  "description": "Personal Study Manager, Learning Dashboard, and Focus Workspace",
+  "description": "Personal Study Manager, Learning Roadmaps, and Deep-Work Focus Sanctuary",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0c0d12",
-  "theme_color": "#8b5cf6",
+  "background_color": "#0B0D10",
+  "theme_color": "#0B0D10",
   "icons": [
     {
-      "src": "/vite.svg",
-      "sizes": "192x192 512x512",
+      "src": "/favicon.svg",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }

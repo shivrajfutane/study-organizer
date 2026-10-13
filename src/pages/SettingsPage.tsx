@@ -17,6 +17,7 @@ import { dataService } from '@/services/data-service';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { StudySpaceLogo } from '@/components/ui/StudySpaceLogo';
 
 export const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
@@ -336,6 +337,21 @@ export const SettingsPage: React.FC = () => {
             <span>Export Focus Logs (CSV)</span>
           </button>
         </div>
+      </div>
+
+      {/* About StudySpace & Vector Branding */}
+      <div className="rounded-3xl bg-[#141820] border border-[#272E38] p-6 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#272E38]">
+          <StudySpaceLogo size="lg" showText={true} showSubtitle={true} badge="v2.0" />
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-[#1A2029] text-[#63D6C5] border border-[#272E38]">
+              React 19 • TypeScript • Tailwind • Supabase
+            </span>
+          </div>
+        </div>
+        <p className="text-xs text-zinc-400 leading-relaxed">
+          StudySpace is an all-in-one personal productivity environment engineered for deep focus, structured curriculum tracking, and milestone-based roadmap management.
+        </p>
       </div>
 
       {/* Danger Zone: Reset Data */}

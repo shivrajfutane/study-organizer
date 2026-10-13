@@ -16,6 +16,7 @@ import { useTimer } from '@/context/TimerContext';
 import { useAuth } from '@/context/AuthContext';
 import { dataService } from '@/services/data-service';
 import { Button } from '@/components/ui/button';
+import { StudySpaceLogo } from '@/components/ui/StudySpaceLogo';
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -63,7 +64,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch, onOpenQuickAdd }) 
   return (
     <header className="sticky top-0 z-20 h-14 border-b border-border bg-main/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between gap-4">
       {/* Title & Breadcrumbs */}
-      <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <Link to="/" className="md:hidden shrink-0 hover:opacity-85 transition-opacity" title="StudySpace Home">
+          <StudySpaceLogo size={28} showText={false} />
+        </Link>
         {pageInfo.category && pageInfo.parentUrl && (
           <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
             <Link to={pageInfo.parentUrl} className="hover:text-foreground transition-colors">
