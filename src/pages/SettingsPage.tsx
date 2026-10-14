@@ -12,16 +12,20 @@ import {
   AlertTriangle,
   RotateCcw,
   Sparkles,
+  Cloud,
+  RefreshCw,
+  LogOut,
 } from 'lucide-react';
 import { dataService } from '@/services/data-service';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { StudySpaceLogo } from '@/components/ui/StudySpaceLogo';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 export const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
-  const { isConfigured, isDemoUser, user } = useAuth();
+  const { isConfigured, isDemoUser, user, signOut, syncNow } = useAuth();
   const [, setTick] = useState(0);
 
   const profile = dataService.getProfile();
@@ -39,6 +43,23 @@ export const SettingsPage: React.FC = () => {
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    setSyncMessage(null);
+    try {
+      await syncNow();
+      setSyncMessage('Workspace synchronized with Supabase cloud successfully!');
+      setTimeout(() => setSyncMessage(null), 3500);
+    } catch (e: any) {
+      setSyncMessage(e?.message || 'Sync encountered an error.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
     return dataService.subscribe(() => setTick((t) => t + 1));
@@ -110,15 +131,55 @@ export const SettingsPage: React.FC = () => {
 
       {/* Cloud & Supabase Diagnostics Section */}
       <div className="rounded-3xl bg-[#141820] border border-[#272E38] p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-[#63D6C5]/10 text-[#63D6C5]">
-            <Database className="w-5 h-5" />
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-[#63D6C5]/10 text-[#63D6C5]">
+              <Database className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-[#F3F5F7] tracking-tight">Cloud Database & Account Sync</h3>
+              <p className="text-xs text-zinc-400">Save all your subjects, topics, roadmaps, and sessions online</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-bold text-[#F3F5F7] tracking-tight">Cloud Database & Supabase Status</h3>
-            <p className="text-xs text-zinc-400">Row Level Security & PostgreSQL synchronizer</p>
-          </div>
+
+          {isDemoUser ? (
+            <button
+              type="button"
+              onClick={() => setAuthModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D6FF62] hover:bg-[#cbf555] text-black font-bold text-xs shadow-md transition-colors cursor-pointer"
+            >
+              <Cloud className="w-4 h-4 text-black" />
+              <span>Log in to Save All Data</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleManualSync}
+                disabled={isSyncing}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1A2029] hover:bg-[#272E38] text-[#F3F5F7] border border-[#272E38] text-xs font-semibold transition-colors cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-[#D6FF62] ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Syncing...' : 'Sync All Data Now'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/30 hover:bg-rose-950/50 text-rose-300 border border-rose-900/40 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          )}
         </div>
+
+        {syncMessage && (
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{syncMessage}</span>
+          </div>
+        )}
 
         <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -129,18 +190,22 @@ export const SettingsPage: React.FC = () => {
                 }`}
               />
               <span className="text-sm font-bold text-white">
-                {isConfigured ? 'Supabase Live Connected' : 'Local Persistence & Offline Cache Active'}
+                {!isDemoUser
+                  ? 'Cloud Synced & Protected'
+                  : isConfigured
+                  ? 'Supabase Cloud Connected (Guest Mode)'
+                  : 'Local Persistence Active'}
               </span>
             </div>
             <p className="text-xs text-zinc-400">
-              {isConfigured
-                ? 'Your learning data, sessions, and files are securely backed by Supabase PostgreSQL.'
-                : 'Running in zero-latency standalone mode. All changes persist across reloads in local cache.'}
+              {!isDemoUser
+                ? `Logged in as ${user?.email}. All learning data, sessions, and files automatically sync to your private cloud storage.`
+                : 'You are currently using local storage. Log in or create an account to back up and sync your workspace across devices.'}
             </p>
           </div>
 
-          <div className="shrink-0 text-xs font-mono text-zinc-500 bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800">
-            {isDemoUser ? 'Local User: Alex Rivera' : `Account: ${user?.email}`}
+          <div className="shrink-0 text-xs font-mono text-zinc-400 bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800">
+            {isDemoUser ? 'Status: Guest Mode' : `User: ${user?.email}`}
           </div>
         </div>
       </div>
@@ -380,6 +445,12 @@ export const SettingsPage: React.FC = () => {
         title="Reset StudySpace to Default Seed?"
         message="This will overwrite current local changes and restore the clean starter categories and modules. Make sure you've exported your JSON backup if needed."
         confirmText="Reset All Data"
+      />
+
+      {/* Cloud Authentication Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
       />
     </div>
   );

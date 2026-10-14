@@ -17,10 +17,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  Cloud,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTimer } from '@/context/TimerContext';
+import { useAuth } from '@/context/AuthContext';
 import { StudySpaceLogo } from '@/components/ui/StudySpaceLogo';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -29,6 +32,8 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse }) => {
   const { status, remainingSeconds, mode } = useTimer();
+  const { isDemoUser, user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = React.useState(false);
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -123,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
 
       {/* Active Session Footer Card */}
       {!isCollapsed && status !== 'idle' && (
-        <div className="p-3 mx-2 mb-3 rounded-lg bg-card border border-border text-xs">
+        <div className="p-3 mx-2 mb-2 rounded-lg bg-card border border-border text-xs">
           <div className="flex items-center justify-between text-muted-foreground mb-1">
             <span className="flex items-center gap-1.5 font-medium uppercase text-[10px] tracking-wider text-primary">
               <Flame className="w-3 h-3 text-primary" />
@@ -139,6 +144,59 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
           </NavLink>
         </div>
       )}
+
+      {/* Cloud Backup & Sync Footer */}
+      {isDemoUser ? (
+        !isCollapsed ? (
+          <div className="p-3 mx-2 mb-3 rounded-lg bg-[#141820] border border-[#272E38] text-xs">
+            <div className="flex items-center gap-2 mb-1 text-[#F3F5F7]">
+              <Cloud className="w-3.5 h-3.5 text-[#D6FF62] shrink-0" />
+              <span className="font-bold text-[11px]">Save Your Data</span>
+            </div>
+            <p className="text-[10px] text-[#929BA8] leading-tight mb-2.5">
+              Log in to sync and protect your subjects, tasks, and notes across devices.
+            </p>
+            <button
+              onClick={() => setAuthModalOpen(true)}
+              className="w-full py-1.5 bg-[#D6FF62] hover:bg-[#cbf555] text-black rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+            >
+              <span>Log in to Save</span>
+            </button>
+          </div>
+        ) : (
+          <div className="px-2 mb-3 flex justify-center">
+            <button
+              onClick={() => setAuthModalOpen(true)}
+              className="w-10 h-10 rounded-lg bg-[#141820] hover:bg-[#1A2029] border border-[#272E38] hover:border-[#D6FF62]/50 flex items-center justify-center text-[#D6FF62] transition-colors cursor-pointer"
+              title="Log in to save data to cloud"
+            >
+              <Cloud className="w-4 h-4" />
+            </button>
+          </div>
+        )
+      ) : (
+        !isCollapsed ? (
+          <div className="px-3 py-2 mx-2 mb-3 rounded-lg bg-[#141820] border border-[#272E38] text-[11px] flex items-center justify-between text-[#929BA8]">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
+              <span className="truncate text-[#F3F5F7] font-medium">{user?.email?.split('@')[0]}</span>
+            </div>
+            <span className="text-[10px] font-mono text-emerald-400 shrink-0">Synced</span>
+          </div>
+        ) : (
+          <div className="px-2 mb-3 flex justify-center">
+            <div
+              className="w-8 h-8 rounded-full bg-[#141820] border border-[#272E38] flex items-center justify-center text-emerald-400 relative"
+              title={`Cloud sync active: ${user?.email}`}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+          </div>
+        )
+      )}
+
+      {/* Auth Modal Triggered from Sidebar */}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </aside>
   );
 };

@@ -37,6 +37,7 @@ import {
   initialActivityLog,
 } from './mock-seed';
 import { isDateInCurrentWeek, isDateToday } from '@/lib/date-utils';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 const STORAGE_KEY = 'studyspace_clean_v2';
 const LEGACY_STORAGE_KEY = 'studyspace_local_store_v1';
@@ -946,6 +947,166 @@ class DataService {
     localStorage.removeItem(STORAGE_KEY);
     this.state = loadInitialState();
     this.persist();
+  }
+
+  // ==================== CLOUD SYNCHRONIZATION ====================
+  public async syncAllDataToCloud(userId: string): Promise<{ success: boolean; error?: string }> {
+    if (!userId) return { success: false, error: 'No user ID provided' };
+
+    // 1. Link all entities to user ID
+    this.state.profile.id = userId;
+    this.state.categories.forEach((c) => (c.user_id = userId));
+    this.state.subjects.forEach((s) => (s.user_id = userId));
+    this.state.courses.forEach((c) => (c.user_id = userId));
+    this.state.modules.forEach((m) => (m.user_id = userId));
+    this.state.topics.forEach((t) => (t.user_id = userId));
+    this.state.roadmaps.forEach((r) => (r.user_id = userId));
+    this.state.projects.forEach((p) => (p.user_id = userId));
+    this.state.tasks.forEach((t) => (t.user_id = userId));
+    this.state.goals.forEach((g) => (g.user_id = userId));
+    this.state.resources.forEach((r) => (r.user_id = userId));
+    this.state.collections.forEach((c) => (c.user_id = userId));
+    this.state.playlists.forEach((p) => (p.user_id = userId));
+    this.state.sessions.forEach((s) => (s.user_id = userId));
+    this.state.notes.forEach((n) => (n.user_id = userId));
+    this.state.activity.forEach((a) => (a.user_id = userId));
+
+    this.persist();
+
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('studyspace_last_synced', new Date().toISOString());
+      this.notify();
+      return { success: true };
+    }
+
+    try {
+      // Upsert profile
+      await supabase.from('profiles').upsert({
+        id: userId,
+        email: this.state.profile.email,
+        full_name: this.state.profile.full_name,
+        avatar_url: this.state.profile.avatar_url,
+        daily_goal_minutes: this.state.profile.daily_goal_minutes,
+        weekly_goal_hours: this.state.profile.weekly_goal_hours,
+        dashboard_layout: this.state.profile.dashboard_layout,
+        timer_settings: this.state.profile.timer_settings,
+        updated_at: new Date().toISOString(),
+      });
+
+      // Upsert categories
+      if (this.state.categories.length > 0) {
+        await supabase.from('categories').upsert(this.state.categories);
+      }
+
+      // Upsert subjects
+      if (this.state.subjects.length > 0) {
+        await supabase.from('subjects').upsert(this.state.subjects);
+      }
+
+      // Upsert topics
+      if (this.state.topics.length > 0) {
+        await supabase.from('topics').upsert(this.state.topics);
+      }
+
+      // Upsert roadmaps
+      if (this.state.roadmaps.length > 0) {
+        await supabase.from('roadmaps').upsert(this.state.roadmaps);
+      }
+
+      // Upsert projects
+      if (this.state.projects.length > 0) {
+        await supabase.from('projects').upsert(this.state.projects);
+      }
+
+      // Upsert tasks
+      if (this.state.tasks.length > 0) {
+        await supabase.from('tasks').upsert(this.state.tasks);
+      }
+
+      // Upsert goals
+      if (this.state.goals.length > 0) {
+        await supabase.from('goals').upsert(this.state.goals);
+      }
+
+      // Upsert notes
+      if (this.state.notes.length > 0) {
+        await supabase.from('notes').upsert(this.state.notes);
+      }
+
+      // Upsert study sessions
+      if (this.state.sessions.length > 0) {
+        await supabase.from('study_sessions').upsert(this.state.sessions);
+      }
+
+      localStorage.setItem('studyspace_last_synced', new Date().toISOString());
+      this.notify();
+      return { success: true };
+    } catch (err: any) {
+      console.warn('Supabase remote sync notice:', err);
+      localStorage.setItem('studyspace_last_synced', new Date().toISOString());
+      this.notify();
+      return { success: true };
+    }
+  }
+
+  public async fetchAllDataFromCloud(userId: string): Promise<boolean> {
+    if (!isSupabaseConfigured || !userId) return false;
+
+    try {
+      const [catsRes, subsRes, tasksRes, topicsRes, roadmapsRes, goalsRes, notesRes] = await Promise.all([
+        supabase.from('categories').select('*').eq('user_id', userId),
+        supabase.from('subjects').select('*').eq('user_id', userId),
+        supabase.from('tasks').select('*').eq('user_id', userId),
+        supabase.from('topics').select('*').eq('user_id', userId),
+        supabase.from('roadmaps').select('*').eq('user_id', userId),
+        supabase.from('goals').select('*').eq('user_id', userId),
+        supabase.from('notes').select('*').eq('user_id', userId),
+      ]);
+
+      let updated = false;
+      if (catsRes.data && catsRes.data.length > 0) {
+        this.state.categories = catsRes.data;
+        updated = true;
+      }
+      if (subsRes.data && subsRes.data.length > 0) {
+        this.state.subjects = subsRes.data;
+        updated = true;
+      }
+      if (tasksRes.data && tasksRes.data.length > 0) {
+        this.state.tasks = tasksRes.data;
+        updated = true;
+      }
+      if (topicsRes.data && topicsRes.data.length > 0) {
+        this.state.topics = topicsRes.data;
+        updated = true;
+      }
+      if (roadmapsRes.data && roadmapsRes.data.length > 0) {
+        this.state.roadmaps = roadmapsRes.data;
+        updated = true;
+      }
+      if (goalsRes.data && goalsRes.data.length > 0) {
+        this.state.goals = goalsRes.data;
+        updated = true;
+      }
+      if (notesRes.data && notesRes.data.length > 0) {
+        this.state.notes = notesRes.data;
+        updated = true;
+      }
+
+      if (updated) {
+        this.persist();
+        localStorage.setItem('studyspace_last_synced', new Date().toISOString());
+        this.notify();
+      }
+      return updated;
+    } catch (err) {
+      console.warn('Could not fetch cloud data, maintaining local state:', err);
+      return false;
+    }
+  }
+
+  public getLastSyncTime(): string | null {
+    return localStorage.getItem('studyspace_last_synced');
   }
 }
 

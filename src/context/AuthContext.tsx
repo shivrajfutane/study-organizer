@@ -13,6 +13,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   continueAsGuest: () => void;
+  syncNow: () => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,9 +21,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const DEMO_USER: User = {
   id: 'usr_default_001',
   app_metadata: {},
-  user_metadata: { full_name: 'Alex Rivera' },
+  user_metadata: { full_name: 'Guest Learner' },
   aud: 'authenticated',
-  email: 'learner@studyspace.dev',
+  email: 'guest@studyspace.dev',
   created_at: new Date().toISOString(),
 };
 
@@ -45,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         setUser(session.user);
         setIsDemoUser(false);
+        dataService.syncAllDataToCloud(session.user.id);
       } else {
         setUser(DEMO_USER);
         setIsDemoUser(true);
@@ -54,11 +56,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session?.user) {
         setUser(session.user);
         setIsDemoUser(false);
+        await dataService.syncAllDataToCloud(session.user.id);
       } else {
         setUser(DEMO_USER);
         setIsDemoUser(true);
@@ -71,44 +74,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithEmail = async (email: string, password: string) => {
     if (!isSupabaseConfigured) {
-      setUser({
+      const mockUser = {
         ...DEMO_USER,
         email,
-      });
-      setIsDemoUser(true);
+      };
+      setUser(mockUser);
+      setIsDemoUser(false);
+      await dataService.syncAllDataToCloud(mockUser.id);
       return { error: null };
     }
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data?.user) {
+      setUser(data.user);
+      setIsDemoUser(false);
+      await dataService.fetchAllDataFromCloud(data.user.id);
+      await dataService.syncAllDataToCloud(data.user.id);
+    }
     return { error: error ? new Error(error.message) : null };
   };
 
   const signUpWithEmail = async (email: string, password: string, fullName: string) => {
     if (!isSupabaseConfigured) {
-      setUser({
+      const mockUser = {
         ...DEMO_USER,
         email,
         user_metadata: { full_name: fullName },
-      });
+      };
+      setUser(mockUser);
       dataService.updateProfile({ full_name: fullName, email });
-      setIsDemoUser(true);
+      setIsDemoUser(false);
+      await dataService.syncAllDataToCloud(mockUser.id);
       return { error: null };
     }
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName },
       },
     });
+    if (!error && data?.user) {
+      setUser(data.user);
+      setIsDemoUser(false);
+      dataService.updateProfile({ full_name: fullName, email });
+      await dataService.syncAllDataToCloud(data.user.id);
+    }
     return { error: error ? new Error(error.message) : null };
+  };
+
+  const syncNow = async () => {
+    const activeUserId = user?.id || 'usr_default_001';
+    return await dataService.syncAllDataToCloud(activeUserId);
   };
 
   const signOut = async () => {
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
-    setUser(null);
+    setUser(DEMO_USER);
     setSession(null);
+    setIsDemoUser(true);
   };
 
   const continueAsGuest = () => {
@@ -128,6 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signUpWithEmail,
         signOut,
         continueAsGuest,
+        syncNow,
       }}
     >
       {children}
